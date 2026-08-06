@@ -1,5 +1,11 @@
 # Releases
 
+## 0.9.8dev
+
+#### New features
+
+- Add stereographic spherical sliced Wasserstein distance in `ot.sliced.stereographic_sliced_wasserstein_sphere`, with its rotationally invariant extension (PR #XXX)
+
 ## 0.9.7.post1
 
 This release is identical to 0.9.7 but will allow the upload of a source distribution to PyPI and release on conda-forge (that requires a source distribution).
