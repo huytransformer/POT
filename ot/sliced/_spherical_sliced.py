@@ -338,13 +338,11 @@ def stereographic_sliced_wasserstein_sphere(
     sphere, :math:`\theta_\# \mu` stands for the pushforwards of the projection
     :math:`X \in \mathbb{R}^{d-1} \mapsto \langle \theta, X \rangle`,
     :math:`\phi_\epsilon` is the stereographic projection
-    :math:`\phi(x) = \frac{x_{1:d-1}}{1-x_d}` restricted to the sphere without the
+    :math:`\phi(x) = \frac{2 x_{1:d-1}}{1-x_d}` restricted to the sphere without the
     :math:`\epsilon`-cap around the north pole (points with :math:`x_d > 1-\epsilon`
     are first mapped to the circle :math:`x_d = 1-\epsilon`), and
     :math:`h_1(x) = \mathrm{arccos}\left(\frac{1-\|x\|^2}{1+\|x\|^2}\right)\frac{x}{\|x\|}`
-    is the injective defining function of :ref:`[93] <references-s3w>`, such that
-    :math:`(h_1\circ\phi_\epsilon)(x) = \mathrm{arccos}(-x_d)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}`
-    maps each point to its geodesic distance to the south pole times its azimuth.
+    is the injective defining function of :ref:`[93] <references-s3w>`.
 
     If ``n_rotations >= 1`` or ``rotations`` is provided, computes instead a
     Monte-Carlo approximation of the rotationally invariant extension

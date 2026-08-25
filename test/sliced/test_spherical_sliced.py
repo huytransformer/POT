@@ -574,10 +574,13 @@ def test_stereographic_sliced_sphere_different_dists():
     assert res > 0.0
 
 
-def test_stereographic_sliced_sphere_geodesic():
-    # Diracs on a common meridian: h projects them on a common line at their
-    # geodesic distance to the south pole, so S3W_2 with the canonical basis
+def test_stereographic_sliced_sphere_meridian():
+    # Diracs on a common meridian: h_1 o phi_eps projects them on a common line
+    # at radius arccos(-(3+5*x_d)/(5+3*x_d)), so S3W_2 with the canonical basis
     # as projections has a closed form
+    def radius(x_d):
+        return np.arccos(-(3 + 5 * x_d) / (5 + 3 * x_d))
+
     d = 4
     t1, t2 = 0.3, 1.9
     x = np.array([[np.sin(t1), 0.0, 0.0, np.cos(t1)]])
@@ -585,7 +588,9 @@ def test_stereographic_sliced_sphere_geodesic():
     projections = np.eye(d - 1)
 
     res = ot.stereographic_sliced_wasserstein_sphere(x, y, projections=projections)
-    np.testing.assert_almost_equal(res, np.abs(t1 - t2) / np.sqrt(d - 1))
+    np.testing.assert_almost_equal(
+        res, np.abs(radius(np.cos(t1)) - radius(np.cos(t2))) / np.sqrt(d - 1)
+    )
 
     # the poles are mapped without nan: the north pole on the boundary of the
     # eps-cap, the south pole on the origin
@@ -597,7 +602,7 @@ def test_stereographic_sliced_sphere_geodesic():
     res = ot.stereographic_sliced_wasserstein_sphere(
         north, south, projections=projections
     )
-    np.testing.assert_almost_equal(res, (np.pi - np.arccos(1 - 1e-6)) / np.sqrt(d - 1))
+    np.testing.assert_almost_equal(res, radius(1 - 1e-6) / np.sqrt(d - 1))
 
 
 def test_stereographic_sliced_sphere_rotations():

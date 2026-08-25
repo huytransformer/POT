@@ -242,16 +242,14 @@ def projection_sphere_to_ball(x, eps=1e-6, backend=None):
     To get the projection on the ball, we use the following closed form:
 
     .. math::
-        (h_1\circ\phi_\epsilon)(x) = \mathrm{arccos}(-x_d)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}
+        (h_1\circ\phi_\epsilon)(x) = \mathrm{arccos}\left(-\frac{3+5x_d}{5+3x_d}\right)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}
 
     where :math:`\phi_\epsilon` is the stereographic projection
-    :math:`\phi(x) = \frac{x_{1:d-1}}{1-x_d}` restricted to the sphere without the
+    :math:`\phi(x) = \frac{2 x_{1:d-1}}{1-x_d}` restricted to the sphere without the
     :math:`\epsilon`-cap around the north pole (points with :math:`x_d > 1-\epsilon`
     are first mapped to the circle :math:`x_d = 1-\epsilon`), and
     :math:`h_1(x) = \mathrm{arccos}\left(\frac{1-\|x\|^2}{1+\|x\|^2}\right)\frac{x}{\|x\|}`
-    is the injective defining function of :ref:`[93] <references-s3w>`, such that
-    :math:`h_1\circ\phi_\epsilon` maps each point to its geodesic distance to the
-    south pole times its azimuth.
+    is the injective defining function of :ref:`[93] <references-s3w>`.
 
     Parameters
     ----------
@@ -281,4 +279,5 @@ def projection_sphere_to_ball(x, eps=1e-6, backend=None):
         norm2 > 0, x_azimuth, nx.ones(x_azimuth.shape, type_as=x_azimuth)
     )
     norm2 = nx.sum(x_azimuth**2, axis=-1, keepdims=True)
-    return nx.arccos(-x_d) * x_azimuth / nx.sqrt(norm2)
+    radius = nx.arccos(-(3.0 + 5.0 * x_d) / (5.0 + 3.0 * x_d))
+    return radius * x_azimuth / nx.sqrt(norm2)
