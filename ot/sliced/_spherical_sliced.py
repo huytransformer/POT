@@ -17,6 +17,7 @@ from ._utils import (
     get_random_projections,
     get_random_rotations,
     projection_sphere_to_circle,
+    projection_sphere_to_ball,
 )
 from ..lp import (
     wasserstein_circle,
@@ -312,23 +313,6 @@ def linear_sliced_wasserstein_sphere(
     return res
 
 
-def _projection_sphere_stereographic(x, eps, nx):
-    r"""Maps points on :math:`S^{d-1}` to :math:`\mathbb{R}^{d-1}` with :math:`h\circ\phi_\epsilon`,
-    where :math:`\phi_\epsilon` is the stereographic projection with an :math:`\epsilon`-cap
-    around the north pole and :math:`h` the defining function of :ref:`[93] <references-s3w>`,
-    using the closed form :math:`(h\circ\phi_\epsilon)(x) = \mathrm{arccos}(-x_d)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}`.
-    """
-    x_d = nx.clip(x[..., -1:], -1.0, 1.0 - eps)
-    x_azimuth = x[..., :-1]
-    norm2 = nx.sum(x_azimuth**2, axis=-1, keepdims=True)
-    # the azimuth of the poles is arbitrary, fix it for reproducibility
-    x_azimuth = nx.where(
-        norm2 > 0, x_azimuth, nx.ones(x_azimuth.shape, type_as=x_azimuth)
-    )
-    norm2 = nx.sum(x_azimuth**2, axis=-1, keepdims=True)
-    return nx.arccos(-x_d) * x_azimuth / nx.sqrt(norm2)
-
-
 def stereographic_sliced_wasserstein_sphere(
     X_s,
     X_t,
@@ -348,7 +332,7 @@ def stereographic_sliced_wasserstein_sphere(
     General loss returned:
 
     .. math::
-        S3W_p(\mu,\nu) = \left(\int_{\mathbb{S}^{d-2}} W_p^p(\theta_\# (h\circ\phi_\epsilon)_\#\mu, \theta_\# (h\circ\phi_\epsilon)_\#\nu)\ \mathrm{d}\sigma(\theta)\right)^{\frac{1}{p}}
+        S3W_p(\mu,\nu) = \left(\int_{\mathbb{S}^{d-2}} W_p^p(\theta_\# (h_1\circ\phi_\epsilon)_\#\mu, \theta_\# (h_1\circ\phi_\epsilon)_\#\nu)\ \mathrm{d}\sigma(\theta)\right)^{\frac{1}{p}}
 
     where :math:`\mu,\nu\in\mathcal{P}(S^{d-1})` are two probability measures on the
     sphere, :math:`\theta_\# \mu` stands for the pushforwards of the projection
@@ -357,9 +341,9 @@ def stereographic_sliced_wasserstein_sphere(
     :math:`\phi(x) = \frac{x_{1:d-1}}{1-x_d}` restricted to the sphere without the
     :math:`\epsilon`-cap around the north pole (points with :math:`x_d > 1-\epsilon`
     are first mapped to the circle :math:`x_d = 1-\epsilon`), and
-    :math:`h(x) = \mathrm{arccos}\left(\frac{1-\|x\|^2}{1+\|x\|^2}\right)\frac{x}{\|x\|}`
+    :math:`h_1(x) = \mathrm{arccos}\left(\frac{1-\|x\|^2}{1+\|x\|^2}\right)\frac{x}{\|x\|}`
     is the injective defining function of :ref:`[93] <references-s3w>`, such that
-    :math:`(h\circ\phi_\epsilon)(x) = \mathrm{arccos}(-x_d)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}`
+    :math:`(h_1\circ\phi_\epsilon)(x) = \mathrm{arccos}(-x_d)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}`
     maps each point to its geodesic distance to the south pole times its azimuth.
 
     If ``n_rotations >= 1`` or ``rotations`` is provided, computes instead a
@@ -470,8 +454,8 @@ def stereographic_sliced_wasserstein_sphere(
         Xps = X_s[None, :, :]
         Xpt = X_t[None, :, :]
 
-    Xps = _projection_sphere_stereographic(Xps, eps, nx)
-    Xpt = _projection_sphere_stereographic(Xpt, eps, nx)
+    Xps = projection_sphere_to_ball(Xps, eps=eps, backend=nx)
+    Xpt = projection_sphere_to_ball(Xpt, eps=eps, backend=nx)
 
     Xps = nx.reshape(
         nx.einsum("kni, il -> nkl", Xps, projections),

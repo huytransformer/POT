@@ -453,6 +453,17 @@ def test_get_random_rotations():
     np.testing.assert_almost_equal(np.linalg.det(rotations), np.ones(n_rotations))
 
 
+def test_projection_sphere_to_ball():
+    rng = np.random.RandomState(0)
+
+    x = rng.randn(100, 3)
+    x = x / np.sqrt(np.sum(x**2, -1, keepdims=True))
+
+    x_projs = ot.sliced.projection_sphere_to_ball(x)
+    assert x_projs.shape == (100, 2)
+    assert np.all(np.sqrt(np.sum(x_projs**2, -1)) <= np.pi)
+
+
 def test_stereographic_sliced_sphere_same_dist():
     n = 100
     rng = np.random.RandomState(0)

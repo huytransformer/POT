@@ -112,7 +112,7 @@ def get_projections_sphere(d, n_projections, seed=None, backend=None, type_as=No
 
 def get_random_rotations(d, n_rotations, seed=None, backend=None, type_as=None):
     r"""
-    Generates n_rotations samples from the uniform (Haar) distribution on the special orthogonal group :math:`\mathrm{SO}(d)=\{R \in \mathbb{R}^{d\times d}, R^TR=I_d, \mathrm{det}(R)=1\}`
+    Generates n_rotations samples from the uniform (Haar) distribution on the special orthogonal group :math:`\mathrm{SO}(d)=\{R \in \mathbb{R}^{d\times d}, R^TR=I_d, \mathrm{det}(R)=1\}`.
 
     The rotations are obtained from the QR factorization of Gaussian matrices,
     with the sign correction of :ref:`[94] <references-get-random-rotations>`
@@ -233,3 +233,52 @@ def projection_sphere_to_circle(
     )
 
     return Xp_coords, projections
+
+
+def projection_sphere_to_ball(x, eps=1e-6, backend=None):
+    r"""
+    Projection of :math:`x\in S^{d-1}` on the ball of radius :math:`\pi` in :math:`\mathbb{R}^{d-1}` with :math:`h_1\circ\phi_\epsilon`.
+
+    To get the projection on the ball, we use the following closed form:
+
+    .. math::
+        (h_1\circ\phi_\epsilon)(x) = \mathrm{arccos}(-x_d)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}
+
+    where :math:`\phi_\epsilon` is the stereographic projection
+    :math:`\phi(x) = \frac{x_{1:d-1}}{1-x_d}` restricted to the sphere without the
+    :math:`\epsilon`-cap around the north pole (points with :math:`x_d > 1-\epsilon`
+    are first mapped to the circle :math:`x_d = 1-\epsilon`), and
+    :math:`h_1(x) = \mathrm{arccos}\left(\frac{1-\|x\|^2}{1+\|x\|^2}\right)\frac{x}{\|x\|}`
+    is the injective defining function of :ref:`[93] <references-s3w>`, such that
+    :math:`h_1\circ\phi_\epsilon` maps each point to its geodesic distance to the
+    south pole times its azimuth.
+
+    Parameters
+    ----------
+    x : ndarray, shape (..., dim)
+        samples on the sphere
+    eps: float, optional (default=1e-6)
+        Size of the cap around the north pole excluded from the stereographic
+        projection to ensure numerical stability
+    backend:
+        Backend to use for the computations
+
+    Returns
+    -------
+    Xp: ndarray, shape (..., dim-1)
+        Images of the samples in the ball of radius :math:`\pi`
+    """
+    if backend is None:
+        nx = get_backend(x)
+    else:
+        nx = backend
+
+    x_d = nx.clip(x[..., -1:], -1.0, 1.0 - eps)
+    x_azimuth = x[..., :-1]
+    norm2 = nx.sum(x_azimuth**2, axis=-1, keepdims=True)
+    # the azimuth of the poles is arbitrary, fix it for reproducibility
+    x_azimuth = nx.where(
+        norm2 > 0, x_azimuth, nx.ones(x_azimuth.shape, type_as=x_azimuth)
+    )
+    norm2 = nx.sum(x_azimuth**2, axis=-1, keepdims=True)
+    return nx.arccos(-x_d) * x_azimuth / nx.sqrt(norm2)

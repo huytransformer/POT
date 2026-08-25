@@ -15,6 +15,7 @@ from ._utils import (
     get_projections_sphere,
     get_random_rotations,
     projection_sphere_to_circle,
+    projection_sphere_to_ball,
 )
 from ._sliced_distances import (
     sliced_wasserstein_distance,
@@ -33,6 +34,7 @@ __all__ = [
     "get_projections_sphere",
     "get_random_rotations",
     "projection_sphere_to_circle",
+    "projection_sphere_to_ball",
     "min_sliced_transport_plan",
     "expected_sliced_plan",
     "sliced_plans",
