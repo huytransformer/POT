@@ -465,7 +465,7 @@ def test_projection_sphere_to_ball():
 
     x_projs = ot.sliced.projection_sphere_to_ball(x)
     assert x_projs.shape == (100, 2)
-    assert np.all(np.sqrt(np.sum(x_projs**2, -1)) <= np.pi)
+    assert np.all(np.sqrt(np.sum(x_projs**2, -1)) <= 1)
 
 
 def test_stereographic_sliced_sphere_same_dist():
@@ -580,10 +580,10 @@ def test_stereographic_sliced_sphere_different_dists():
 
 def test_stereographic_sliced_sphere_meridian():
     # Diracs on a common meridian: h_1 o phi_eps projects them on a common line
-    # at radius arccos(-(3+5*x_d)/(5+3*x_d)), so S3W_2 with the canonical basis
-    # as projections has a closed form
+    # at radius arccos(-(3+5*x_d)/(5+3*x_d))/pi, so S3W_2 with the canonical
+    # basis as projections has a closed form
     def radius(x_d):
-        return np.arccos(-(3 + 5 * x_d) / (5 + 3 * x_d))
+        return np.arccos(-(3 + 5 * x_d) / (5 + 3 * x_d)) / np.pi
 
     d = 4
     t1, t2 = 0.3, 1.9

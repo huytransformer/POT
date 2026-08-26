@@ -332,7 +332,7 @@ def stereographic_sliced_wasserstein_sphere(
     General loss returned:
 
     .. math::
-        S3W_p(\mu,\nu) = \left(\int_{\mathbb{S}^{d-2}} W_p^p(\theta_\# (h_1\circ\phi_\epsilon)_\#\mu, \theta_\# (h_1\circ\phi_\epsilon)_\#\nu)\ \mathrm{d}\sigma(\theta)\right)^{\frac{1}{p}}
+        S3W_p(\mu,\nu) = \left(\int_{\mathbb{S}^{d-2}} W_p^p(\theta_\# (\tfrac{1}{\pi}h_1\circ\phi_\epsilon)_\#\mu, \theta_\# (\tfrac{1}{\pi}h_1\circ\phi_\epsilon)_\#\nu)\ \mathrm{d}\sigma(\theta)\right)^{\frac{1}{p}}
 
     where :math:`\mu,\nu\in\mathcal{P}(S^{d-1})` are two probability measures on the
     sphere, :math:`\theta_\# \mu` stands for the pushforwards of the projection
@@ -342,7 +342,8 @@ def stereographic_sliced_wasserstein_sphere(
     :math:`\epsilon`-cap around the north pole (points with :math:`x_d > 1-\epsilon`
     are first mapped to the circle :math:`x_d = 1-\epsilon`), and
     :math:`h_1(x) = \mathrm{arccos}\left(\frac{1-\|x\|^2}{1+\|x\|^2}\right)\frac{x}{\|x\|}`
-    is the injective defining function of :ref:`[93] <references-s3w>`.
+    is the injective defining function of :ref:`[93] <references-s3w>`, rescaled by
+    :math:`\frac{1}{\pi}` to map the sphere to the unit ball.
 
     If ``n_rotations >= 1`` or ``rotations`` is provided, computes instead a
     Monte-Carlo approximation of the rotationally invariant extension

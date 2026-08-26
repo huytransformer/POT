@@ -237,12 +237,12 @@ def projection_sphere_to_circle(
 
 def projection_sphere_to_ball(x, eps=1e-6, backend=None):
     r"""
-    Projection of :math:`x\in S^{d-1}` on the ball of radius :math:`\pi` in :math:`\mathbb{R}^{d-1}` with :math:`h_1\circ\phi_\epsilon`.
+    Projection of :math:`x\in S^{d-1}` on the unit ball of :math:`\mathbb{R}^{d-1}` with :math:`\frac{1}{\pi}h_1\circ\phi_\epsilon`.
 
     To get the projection on the ball, we use the following closed form:
 
     .. math::
-        (h_1\circ\phi_\epsilon)(x) = \mathrm{arccos}\left(-\frac{3+5x_d}{5+3x_d}\right)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}
+        \frac{1}{\pi}(h_1\circ\phi_\epsilon)(x) = \frac{1}{\pi}\mathrm{arccos}\left(-\frac{3+5x_d}{5+3x_d}\right)\frac{x_{1:d-1}}{\|x_{1:d-1}\|}
 
     where :math:`\phi_\epsilon` is the stereographic projection
     :math:`\phi(x) = \frac{2 x_{1:d-1}}{1-x_d}` restricted to the sphere without the
@@ -264,7 +264,7 @@ def projection_sphere_to_ball(x, eps=1e-6, backend=None):
     Returns
     -------
     Xp: ndarray, shape (..., dim-1)
-        Images of the samples in the ball of radius :math:`\pi`
+        Images of the samples in the unit ball
     """
     if backend is None:
         nx = get_backend(x)
@@ -279,5 +279,5 @@ def projection_sphere_to_ball(x, eps=1e-6, backend=None):
         norm2 > 0, x_azimuth, nx.ones(x_azimuth.shape, type_as=x_azimuth)
     )
     norm2 = nx.sum(x_azimuth**2, axis=-1, keepdims=True)
-    radius = nx.arccos(-(3.0 + 5.0 * x_d) / (5.0 + 3.0 * x_d))
+    radius = nx.arccos(-(3.0 + 5.0 * x_d) / (5.0 + 3.0 * x_d)) / np.pi
     return radius * x_azimuth / nx.sqrt(norm2)
