@@ -452,6 +452,10 @@ def test_get_random_rotations():
     )
     np.testing.assert_almost_equal(np.linalg.det(rotations), np.ones(n_rotations))
 
+    rotations = ot.sliced.get_random_rotations(3, 5, seed=42)
+    rotations2 = ot.sliced.get_random_rotations(3, 5, seed=42)
+    np.testing.assert_almost_equal(rotations, rotations2)
+
 
 def test_projection_sphere_to_ball():
     rng = np.random.RandomState(0)
